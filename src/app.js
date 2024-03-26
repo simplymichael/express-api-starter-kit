@@ -115,7 +115,7 @@ app.get("/api", (req, res) => {
   function asJSON() {
     const routeNames = Object.keys(apiRoutes);
     const routes = {
-      listRoutes: {
+      routes: {
         path : "/api/routes",
       },
     };
@@ -132,9 +132,9 @@ app.get("/api", (req, res) => {
 
 // Fetch available routes for each individual API path (as HTML)
 app.get(`${apiVersionBasePath}/:apiType/routes`, (req, res) => {
-  const apiType     = req.params.apiType; // user, example, etc api
-  const apiPath     = `${apiVersionBasePath}/${apiType}`;
-  const routingData = require(`./router/routes/${apiPath}/routing-data`);
+  const apiType          = req.params.apiType; // user, example, etc api
+  const apiPath          = `${apiVersionBasePath}/${apiType}`;
+  const routeDefinitions = require(`./router/routes/${apiPath}/definitions`);
 
   if(req.query.view?.toLowerCase() === "json") {
     return asJSON();
@@ -145,7 +145,7 @@ app.get(`${apiVersionBasePath}/:apiType/routes`, (req, res) => {
   function asHTML() {
     const endpoints   = [];
 
-    for (const [key, value] of Object.entries(routingData)) {
+    for (const [key, value] of Object.entries(routeDefinitions)) {
       endpoints.push(createRouteItem(key, value));
     }
 
@@ -179,7 +179,7 @@ app.get(`${apiVersionBasePath}/:apiType/routes`, (req, res) => {
             </tr>
           </thead>
           <tbody>
-            <td>listRoutes</td>
+            <td>routes</td>
             <td>Get list of available API routes</td>
             <td>${apiPath}/routes</td>
             <td>GET</td>
@@ -195,11 +195,16 @@ app.get(`${apiVersionBasePath}/:apiType/routes`, (req, res) => {
     res.send(Buffer.from(html));
 
     function createRouteItem(name, data) {
+      const path = `${apiPath}${data.path}` + (data.parameters.length > 0 
+        ? `/${data.parameters.join("")}` 
+        : ""
+      );
+
       return `
         <tr>
           <td>${name}</td>
           <td>${data.description}</td>
-          <td>${apiPath}${data.path}</td>
+          <td>${path}</td>
           <td>${data.method}</td>
         </tr>
       `;
@@ -208,7 +213,7 @@ app.get(`${apiVersionBasePath}/:apiType/routes`, (req, res) => {
 
   function asJSON() {
     const routes = {
-      listRoutes: {
+      routes: {
         method      : "GET",
         path        : `${apiPath}/routes`,
         parameters  : [],
@@ -216,7 +221,7 @@ app.get(`${apiVersionBasePath}/:apiType/routes`, (req, res) => {
       },
     };
 
-    for(const [key, value] of Object.entries(routingData)) {
+    for(const [key, value] of Object.entries(routeDefinitions)) {
       const { method, path, parameters, description } = value;
 
       routes[key] = {

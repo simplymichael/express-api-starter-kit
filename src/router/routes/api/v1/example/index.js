@@ -1,11 +1,11 @@
 const express = require("express");
-const routingData = require("./routing-data");
+const routeDefinitions = require("./definitions");
 
 const router = express.Router();
 
 
-Object.values(routingData).forEach((routeData) => {
-  const { method, path, parameters, middleware, controller } = routeData;
+Object.values(routeDefinitions).forEach((rd) => {
+  const { method, path, parameters, middleware, controller } = rd;
   const url = path + (parameters.length > 0 ? `/${parameters.join("/")}` : "");
 
   router[method.toLowerCase()](url, ...middleware, controller);

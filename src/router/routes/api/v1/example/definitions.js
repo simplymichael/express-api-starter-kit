@@ -2,7 +2,23 @@ const ExampleController = require("../../../../../controllers/example-controller
 
 
 module.exports = {
-  listItems: {
+  create: {
+    method     : "POST",
+    path       : "/",
+    parameters : [],
+    middleware : [],
+    controller : ExampleController.create,
+    description: "Create a new item"
+  },
+  get: {
+    method     : "GET",
+    path       : "/items",
+    parameters : [":itemId"],
+    middleware : [],
+    controller : ExampleController.get,
+    description: "Fetch details of a single item"
+  },
+  list: {
     method     : "GET",
     path       : "/",
     parameters : [],
@@ -10,23 +26,7 @@ module.exports = {
     controller : ExampleController.list,
     description: "Fetch list of items"
   },
-  getItemData: {
-    method     : "GET",
-    path       : "/items",
-    parameters : [":itemId"],
-    middleware : [],
-    controller : ExampleController.getItem,
-    description: "Fetch details of a single item"
-  },
-  searchItems: {
-    method     : "GET",
-    path       : "/search",
-    parameters : [],
-    middleware : [],
-    controller : ExampleController.search,
-    description: "Search for items by name, location, etc"
-  },
-  updateItem: {
+  update: {
     method     : "PUT",
     path       : "/items",
     parameters : [":itemId"],
@@ -34,7 +34,7 @@ module.exports = {
     controller : ExampleController.update,
     description: "Update item details"
   },
-  deleteItem: {
+  delete: {
     method     : "DELETE",
     path       : "/items",
     parameters : [":itemId"],
