@@ -1,7 +1,7 @@
 {
-  "name": "airo-funds-investment-api",
+  "name": "express-api-starter-kit",
   "version": "1.0.0",
-  "description": "",
+  "description": "A starter kit for building REST API applications with Express.js.",
   "main": "index.js",
   "scripts": {
     "test": "cross-env NODE_ENV=test mocha __tests__/\"{,/**/}*.test.js\"",
@@ -13,9 +13,17 @@
     "lint": "npx eslint src/**/*.js __tests__/**/*.js",
     "lint:fix": "npm run lint -- --fix"
   },
-  "keywords": [],
+  "keywords": [
+    "api",
+    "express",
+    "kit",
+    "rest",
+    "rest-api",
+    "starter",
+    "setup"
+  ],
   "author": "simplymichael <simplymichaelorji@gmail.com> (https://github.com/simplymichael)",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "connect-redis": "7.1.1",
     "cookie-parser": "1.4.6",
