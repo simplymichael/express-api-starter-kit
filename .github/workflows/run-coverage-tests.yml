@@ -28,6 +28,17 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
+
+    - name: 'Create env file'
+      run: |
+          set -m
+          touch .env
+          echo "${{ secrets.ENV_FILE }}" > .env
+          cat .env
+    # https://stackoverflow.com/a/63350136/1743192
+    #
+    # The set -m fixes github actions CLI error: "no job control"
+    # See: https://stackoverflow.com/a/46829294/1743192
   
     - name: Install dependencies
       run: npm ci
