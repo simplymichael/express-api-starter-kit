@@ -1,0 +1,74 @@
+[
+  {
+    "firstname": "Jamie",
+    "lastname": "Lanister",
+    "email": "jamielanister@yahoo.com",
+    "role": "user",
+    "status": "pending",
+    "password": "123sEcrEt#"
+  },
+  {
+    "firstname": "Tyrion",
+    "lastname": "Lanister",
+    "email": "tyrionlanister@yahoo.com",
+    "role": "user",
+    "status": "pending",
+    "password": "1sEcrEt$"
+  },
+  {
+    "firstname": "Arya",
+    "lastname": "Stark",
+    "email": "aryastark@yahoo.com",
+    "role": "user",
+    "status": "pending",
+    "password": "sEcrEt123@"
+  },
+  {
+    "firstname": "Rob",
+    "lastname": "Stark",
+    "email": "robstark@yahoo.com",
+    "role": "user",
+    "status": "pending",
+    "password": "sEcrEt123@"
+  },
+  {
+    "firstname": "Cersei",
+    "lastname": "Lanister",
+    "email": "cerseilanister@yahoo.com",
+    "role": "user",
+    "status": "pending",
+    "password": "1sEcrEt$"
+  },
+  {
+    "firstname": "Brandon",
+    "lastname": "Stark",
+    "email": "branstark@yahoo.com",
+    "role": "user",
+    "status": "pending",
+    "password": "sEcrEt123@"
+  },
+  {
+    "firstname": "Sansa",
+    "lastname": "Stark",
+    "email": "sansastark@yahoo.com",
+    "role": "user",
+    "status": "pending",
+    "password": "sEcrEt123@"
+  },
+  {
+    "firstname": "Tywin",
+    "lastname": "Lanister",
+    "email": "tywinlanister@yahoo.com",
+    "role": "user",
+    "status": "pending",
+    "password": "1sEcrEt$"
+  },
+  {
+    "firstname": "Ned",
+    "lastname": "Stark",
+    "email": "nedsastark@yahoo.com",
+    "role": "user",
+    "status": "pending",
+    "password": "sEcrEt123@"
+  }
+]

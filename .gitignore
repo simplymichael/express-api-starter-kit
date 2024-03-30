@@ -11,3 +11,5 @@ node_modules
 .data
 .DS_Store
 .markdown-viewer
+.log
+.logs

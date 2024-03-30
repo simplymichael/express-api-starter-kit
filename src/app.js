@@ -7,8 +7,8 @@ const { apiSuccessResponse } = require("./helpers/api-response");
 const log                    = require("./helpers/log");
 const { defaultLogger }      = require("./helpers/log");
 const { statusCodes }        = require("./helpers/http");
+//const session              = require("./middlewares/session");
 const routes                 = require("./router");
-
 
 const app        = express();
 const appName    = env.NAME;
@@ -132,9 +132,9 @@ app.get("/api", (req, res) => {
 
 // Fetch available routes for each individual API path (as HTML)
 app.get(`${apiVersionBasePath}/:apiType/routes`, (req, res) => {
-  const apiType          = req.params.apiType; // user, example, etc api
-  const apiPath          = `${apiVersionBasePath}/${apiType}`;
-  const routeDefinitions = require(`./router/routes/${apiPath}/definitions`);
+  const apiType     = req.params.apiType; // user, example, etc api
+  const apiPath     = `${apiVersionBasePath}/${apiType}`;
+  const definitions = require(`./router/routes/${apiPath}/definitions`);
 
   if(req.query.view?.toLowerCase() === "json") {
     return asJSON();
@@ -145,7 +145,7 @@ app.get(`${apiVersionBasePath}/:apiType/routes`, (req, res) => {
   function asHTML() {
     const endpoints   = [];
 
-    for (const [key, value] of Object.entries(routeDefinitions)) {
+    for (const [key, value] of Object.entries(definitions)) {
       endpoints.push(createRouteItem(key, value));
     }
 
@@ -195,8 +195,8 @@ app.get(`${apiVersionBasePath}/:apiType/routes`, (req, res) => {
     res.send(Buffer.from(html));
 
     function createRouteItem(name, data) {
-      const path = `${apiPath}${data.path}` + (data.parameters.length > 0 
-        ? `/${data.parameters.join("")}` 
+      const path = `${apiPath}${data.path}` + (data.parameters.length > 0
+        ? `${data.parameters.join("/")}`
         : ""
       );
 
@@ -221,7 +221,7 @@ app.get(`${apiVersionBasePath}/:apiType/routes`, (req, res) => {
       },
     };
 
-    for(const [key, value] of Object.entries(routeDefinitions)) {
+    for(const [key, value] of Object.entries(definitions)) {
       const { method, path, parameters, description } = value;
 
       routes[key] = {
@@ -236,12 +236,10 @@ app.get(`${apiVersionBasePath}/:apiType/routes`, (req, res) => {
   }
 });
 
-
 // Setup dynamic API routing table
-for(const [route, handler] of Object.entries(apiRoutes)) { // apiVersionBasePath
-  app.use(new RegExp(`/api/v${apiVersion}/${route}`, "i"), handler);
+for(const [route, handler] of Object.entries(apiRoutes)) {
+  app.use(new RegExp(`${apiVersionBasePath}/${route}`, "i"), handler);
 }
-
 
 // catch 404 and forward to "routes catch-all" handler
 app.use((req, res, next) => next(createError(404)));
