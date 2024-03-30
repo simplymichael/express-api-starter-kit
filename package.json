@@ -25,17 +25,23 @@
   "author": "simplymichael <simplymichaelorji@gmail.com> (https://github.com/simplymichael)",
   "license": "MIT",
   "dependencies": {
+    "awilix": "10.0.1",
+    "bcrypt": "5.1.1",
     "connect-redis": "7.1.1",
     "cookie-parser": "1.4.6",
     "debug": "4.3.4",
     "dotenv": "16.4.5",
+    "email-validator": "2.0.4",
     "express": "4.19.2",
     "express-validator": "7.0.1",
     "http-errors": "2.0.0",
+    "jsonwebtoken": "9.0.2",
     "mongoose": "8.2.3",
     "node-cache": "5.1.2",
     "redis": "4.6.13",
-    "serialijse": "0.3.0"
+    "serialijse": "0.3.0",
+    "winston": "3.13.0",
+    "winston-daily-rotate-file": "5.0.0"
   },
   "devDependencies": {
     "chai": "5.1.0",

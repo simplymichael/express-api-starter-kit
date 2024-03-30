@@ -1,29 +1,35 @@
 /* eslint-env node, mocha */
 
-const server   = require("../../src/index.js");
-const testPort = 3003;
+const server = require("../../src/index.js");
+const apiRoutes = require("../../src/router/routes/api/v1/users/definitions");
+const testPort = 3001;
 const baseUrl  = `http://localhost:${testPort}`;
+const apiUrl   = `${baseUrl}/api/v1`;
 
 server.stop = () => process.exit(0);
 
 // Get the server running and listening on port
-server.start({ 
-  port: testPort, 
+server.start({
+  port: testPort,
   onListening: () => console.log("Server listening on port: ", testPort),
   onError: (error) => console.log("Error occurred: ", error),
 });
 
 
 after(function(done) {
-  setTimeout(async function() {
-    server.stop();
+  setTimeout(function() {
+    // Call done() before stopping the server
+    // so that we can get the test report (20 passing, etc)
+    // before server.stop() terminates the process.
     done();
+    server.stop();
   }, 0);
 });
 
 
 module.exports = {
   apiPort  : testPort,
-  apiUrl   : `${baseUrl}/api`,
-  baseUrl  : baseUrl, 
+  apiPaths : apiRoutes,
+  baseUrl  : baseUrl,
+  usersUrl : `${apiUrl}/users`,
 };
