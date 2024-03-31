@@ -134,7 +134,7 @@ app.get("/api", (req, res) => {
 app.get(`${apiVersionBasePath}/:apiType/routes`, (req, res) => {
   const apiType     = req.params.apiType; // user, example, etc api
   const apiPath     = `${apiVersionBasePath}/${apiType}`;
-  const definitions = require(`./router/routes/${apiPath}/definitions`);
+  const definitions = require(`./router/routes/${apiPath}/route-definitions`);
 
   if(req.query.view?.toLowerCase() === "json") {
     return asJSON();

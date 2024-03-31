@@ -8,10 +8,6 @@ const validator = require("../../../../../middlewares/validators/_validator");
 const checkExpressValidatorStatus = require("../../../../../middlewares/express-validator-status-checker");
 
 const userController = diContainer.resolve("userController");
-const injectDiContainerMiddleware = (req, res, next) => {
-  req.diContainer = diContainer;
-  next();
-};
 
 
 module.exports = {
@@ -22,8 +18,8 @@ module.exports = {
     method     : "POST",
     path       : "/auth",
     parameters : [],
-    middleware : [injectDiContainerMiddleware, authorized],
-    controller : userController.authenticate.bind(userController),
+    middleware : [authorized],
+    handler    : userController.authenticate.bind(userController),
     description: "Authenticate a user using their access token (Authorization header Bearer token) credentials. " +
     "Useful for external services trying to authenticate a user before giving them access to protected operations."
   },
@@ -34,8 +30,8 @@ module.exports = {
     method     : "GET",
     path       : "/search",
     parameters : [],
-    middleware : [injectDiContainerMiddleware],
-    controller : userController.search.bind(userController),
+    middleware : [],
+    handler    : userController.search.bind(userController),
     description: "Search for users by firstname, lastname, email"
   },
   resendVerificationEmail: {
@@ -46,32 +42,32 @@ module.exports = {
     method     : "GET",
     path       : "/resend-verification-email",
     parameters : [],
-    middleware : [injectDiContainerMiddleware, loadUser],
-    controller : userController.resendVerificationEmail.bind(userController),
+    middleware : [loadUser],
+    handler    : userController.resendVerificationEmail.bind(userController),
     description: "Re-send verification email"
   },
   getUser: {
     method     : "GET",
     path       : "/",
     parameters : [":userId"],
-    middleware : [injectDiContainerMiddleware],
-    controller : userController.getUser.bind(userController),
+    middleware : [],
+    handler    : userController.getUser.bind(userController),
     description: "Get details of user specified by their id"
   },
   verifyEmail: {
     method     : "GET",
     path       : "/email/verify",
     parameters : [],
-    middleware : [injectDiContainerMiddleware],
-    controller : userController.verifyUserEmail.bind(userController),
+    middleware : [],
+    handler    : userController.verifyUserEmail.bind(userController),
     description: "Verify user email after signup"
   },
   listUsers: {
     method     : "GET",
     path       : "/",
     parameters : [],
-    middleware : [injectDiContainerMiddleware],
-    controller : userController.list.bind(userController),
+    middleware : [],
+    handler    : userController.list.bind(userController),
     description: "Fetch list of registered users"
   },
   signup: {
@@ -79,13 +75,12 @@ module.exports = {
     path       : "/",
     parameters : [],
     middleware : [
-      injectDiContainerMiddleware,
       loadUser,
       notLoggedIn,
       validator.validate("firstname", "lastname", "email", "password"),
       checkExpressValidatorStatus
     ],
-    controller : userController.createUser.bind(userController),
+    handler    : userController.createUser.bind(userController),
     description: "Register (create) a new user"
   },
   login: {
@@ -93,29 +88,28 @@ module.exports = {
     path       : "/login",
     parameters : [],
     middleware : [
-      injectDiContainerMiddleware,
       loadUser,
       notLoggedIn,
       validator.validate("email", "password"),
       checkExpressValidatorStatus
     ],
-    controller : userController.login.bind(userController),
+    handler    : userController.login.bind(userController),
     description: "Log user in"
   },
   logout: {
     method     : "GET",
     path       : "/logout",
     parameters : [],
-    middleware : [injectDiContainerMiddleware],
-    controller : userController.logout.bind(userController),
+    middleware : [],
+    handler    : userController.logout.bind(userController),
     description: "Logout a signed-in user"
   },
   forgotPassword: {
     method     : "POST",
     path       : "/password/forgot",
     parameters : [],
-    middleware : [injectDiContainerMiddleware],
-    controller : userController.forgotPasswordHandler.bind(userController),
+    middleware : [],
+    handler    : userController.forgotPasswordHandler.bind(userController),
     description: "Notify the app that a user has forgotten their password"
   },
   resetPassword: {
@@ -123,11 +117,10 @@ module.exports = {
     path       : "/password/reset",
     parameters : [],
     middleware : [
-      injectDiContainerMiddleware,
       validator.validate("password"),
       checkExpressValidatorStatus
     ],
-    controller : userController.resetPassword.bind(userController),
+    handler    : userController.resetPassword.bind(userController),
     description: "Reset user password"
   },
   updateUser: {
@@ -135,7 +128,6 @@ module.exports = {
     path       : "/",
     parameters : [],
     middleware : [
-      injectDiContainerMiddleware,
       loadUser,
       loggedIn,
       authorized,
@@ -143,15 +135,15 @@ module.exports = {
       validator.validate("id", "firstname", "lastname", "email"),
       checkExpressValidatorStatus
     ],
-    controller : userController.updateUser.bind(userController),
+    handler    : userController.updateUser.bind(userController),
     description: "Update user details (firstname, lastname, email)"
   },
   deleteUser: {
     method     : "DELETE",
     path       : "/",
     parameters : [":userId"],
-    middleware : [injectDiContainerMiddleware, loadUser, loggedIn, authorized],
-    controller : userController.deleteUser.bind(userController),
+    middleware : [loadUser, loggedIn, authorized],
+    handler    : userController.deleteUser.bind(userController),
     description: "Delete user from the database"
   }
 };
