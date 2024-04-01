@@ -3,6 +3,7 @@ const express                = require("express");
 const createError            = require("http-errors");
 const cookieParser           = require("cookie-parser");
 const env                    = require("../dotenv");
+const diContainer            = require("./di-container");
 const { apiSuccessResponse } = require("./helpers/api-response");
 const log                    = require("./helpers/log");
 const { defaultLogger }      = require("./helpers/log");
@@ -15,6 +16,10 @@ const appName    = env.NAME;
 const apiVersion = env.API_VERSION;
 const { [`api-v${apiVersion}`]: apiRoutes } = routes;
 
+// Make the app a DI Container
+for(const method of ["register", "resolve"]) {
+  app[method] = diContainer[method].bind(diContainer);
+}
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

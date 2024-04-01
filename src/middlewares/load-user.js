@@ -11,7 +11,7 @@ async function loadUser(req, res, next) {
     const tokenSecret = env.AUTH_TOKEN_SECRET;
     const authString  = req.header("Authorization") || "";
     const bearerToken = getAuthTokenFromAuthorizationHeader(authString);
-    const userService = req.diContainer.resolve("userService");
+    const userService = req.app.resolve("userService");
     const user = await getUserFromAuthToken(bearerToken, tokenSecret, userService);
 
     req.user = user;
