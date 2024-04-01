@@ -7,6 +7,20 @@ A starter kit for building REST API applications with Express.js.
 [![Tests][ci-image]][ci-url]
 [![Coverage][codecov-image]][codecov-url]
 
+## Routing 
+Routes are defined in the `src/routes` directory. Each route is an object with several properties.
+One of these properties is the `handler` property which specifies the request handler for this route.
+The handler can be specified in one of four ways:
+- A function
+- An array: `[controller: Object|String, method: Function|String]`
+- An object: `{ controller: Object|String, method: Function|String }`
+- A string `"controller.method"`
+
+## Dependency Injection (DI) Container 
+Every route handler (both controller methods and stand-alone functions) has access 
+to the DI Container's methods (`register` and `resolve`) via the `this` property. 
+Also, every middleware and route handler can access these methods via the `req.app` property.
+
 
 ## Contributing
 - <a name="report-a-bug">[Report a bug][bug]</a>

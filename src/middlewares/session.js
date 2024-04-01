@@ -1,7 +1,7 @@
 const RedisStore      = require("connect-redis").default;
 const session         = require("express-session");
 const { v4: uuidv4 }  = require("uuid");
-const env             = require("../../dotenv");
+const env             = require("../dotenv");
 const diContainer     = require("../di-container");
 const redisConnection = diContainer.resolve("redisConnection");
 

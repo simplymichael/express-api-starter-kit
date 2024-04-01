@@ -1,5 +1,5 @@
 const { body } = require("express-validator");
-const env = require("../../../dotenv");
+const env = require("../../dotenv");
 
 module.exports = () => {
   const MIN = env.PASSWORD_MIN_LENGTH;

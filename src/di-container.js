@@ -3,7 +3,7 @@
  */
 
 const { createContainer, asClass, asFunction, InjectionMode } = require("awilix");
-const env = require("../dotenv");
+const config = require("./config");
 
 const createLogger = require("./connectors/logger");
 const createRedisConnection = require("./connectors/redis");
@@ -22,11 +22,11 @@ const NonceService = require("./services/nonce-service");
 const NotificationService = require("./services/notification-service");
 const UserService = require("./services/user-service");
 
-const cacheProvider = ["production", "staging"].includes(env.NODE_ENV.toLowerCase())
+const cacheProvider = ["production", "staging"].includes(config.app.environment)
   ? redisCacheProvider
   : memoryCacheProvider;
 
-const notificationProvider = env.NODE_ENV.toLowerCase() === "test"
+const notificationProvider = config.app.environment === "test"
   ? consoleNotificationProvider
   : novuNotificationProvider;
 
@@ -38,41 +38,20 @@ const container = createContainer({
 
 container.register({
   logger: asFunction(createLogger),
-  dataSource: asClass(MongooseStore).inject(() => ({
-    connectionOptions: {
-      dsn      : env.DB_DSN,
-      host     : env.DB_HOST,
-      port     : env.DB_PORT,
-      username : env.DB_USERNAME,
-      password : env.DB_PASSWORD,
-      dbName   : env.DB_DBNAME,
-      exitOnConnectFail: true,
-    }
-  })),
-  redisConnection: asFunction(createRedisConnection).inject(() => ({
-    dsn         : env.REDIS_DSN,
-    host        : env.REDIS_HOST,
-    port        : env.REDIS_PORT,
-    username    : env.REDIS_USERNAME,
-    password    : env.REDIS_PASSWORD,
-    db          : env.REDIS_DATABASE,
-    autoConnect : true,
-    // logger is auto-resolved and injected, since we have registered it here.
-    // logger,
-  })),
+  dataSource: asClass(MongooseStore).inject(() => (config.database.mongodb)),
+  redisConnection: asFunction(createRedisConnection).inject(() => config.redis),
 
   cacheStorageProvider: asFunction(cacheProvider),
-  notificationProvider: asFunction(notificationProvider).inject(() => ({
-    apiKey: env.NOVU_API_KEY.trim(),
-  })),
-  userRepository: asClass(UserRepository),
+  notificationProvider: asFunction(notificationProvider).inject(() => (
+    config.notification[config.notification.active])),
+  UserRepository: asClass(UserRepository),
 
-  cacheService: asClass(CacheService),
-  notificationService: asClass(NotificationService),
-  nonceService: asClass(NonceService),
-  userService: asClass(UserService),
+  CacheService: asClass(CacheService),
+  NotificationService: asClass(NotificationService),
+  NonceService: asClass(NonceService),
+  UserService: asClass(UserService),
 
-  userController: asClass(UserController),
+  UserController: asClass(UserController),
 });
 
 

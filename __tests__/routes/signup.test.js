@@ -1,6 +1,6 @@
 /* eslint-env node, mocha */
 
-const env = require("../../dotenv");
+const env = require("../../src/dotenv");
 const allTestUsers = require("../model/_test-users.json");
 const { getRandomData, runTest } = require("../_test-util");
 const { createUser, loginAndDeleteUser } = require("./_route-functions");

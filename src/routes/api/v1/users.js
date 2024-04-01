@@ -1,4 +1,3 @@
-const diContainer = require("../../../di-container");
 const authorized = require("../../../middlewares/auth");
 const loadUser = require("../../../middlewares/load-user");
 const loggedIn = require("../../../middlewares/logged-in");
@@ -6,8 +5,6 @@ const notLoggedIn = require("../../../middlewares/not-logged-in");
 const restrictUserToSelf = require("../../../middlewares/restrict-user-to-self");
 const validator = require("../../../middlewares/validators/_validator");
 const checkExpressValidatorStatus = require("../../../middlewares/express-validator-status-checker");
-
-const userController = diContainer.resolve("userController");
 
 
 module.exports = {
@@ -19,7 +16,7 @@ module.exports = {
     path       : "/auth",
     parameters : [],
     middleware : [authorized],
-    handler    : userController.authenticate.bind(userController),
+    handler    : ["UserController", "authenticate"],
     description: "Authenticate a user using their access token (Authorization header Bearer token) credentials. " +
     "Useful for external services trying to authenticate a user before giving them access to protected operations."
   },
@@ -31,7 +28,7 @@ module.exports = {
     path       : "/search",
     parameters : [],
     middleware : [],
-    handler    : userController.search.bind(userController),
+    handler    : { controller: "UserController", method: "search" },
     description: "Search for users by firstname, lastname, email"
   },
   resendVerificationEmail: {
@@ -43,7 +40,7 @@ module.exports = {
     path       : "/resend-verification-email",
     parameters : [],
     middleware : [loadUser],
-    handler    : userController.resendVerificationEmail.bind(userController),
+    handler    : ["UserController", "resendVerificationEmail"],
     description: "Re-send verification email"
   },
   getUser: {
@@ -51,7 +48,7 @@ module.exports = {
     path       : "/",
     parameters : [":userId"],
     middleware : [],
-    handler    : userController.getUser.bind(userController),
+    handler    : { controller: "UserController", method: "getUser" },
     description: "Get details of user specified by their id"
   },
   verifyEmail: {
@@ -59,7 +56,7 @@ module.exports = {
     path       : "/email/verify",
     parameters : [],
     middleware : [],
-    handler    : userController.verifyUserEmail.bind(userController),
+    handler    : "UserController.verifyUserEmail",
     description: "Verify user email after signup"
   },
   listUsers: {
@@ -67,7 +64,7 @@ module.exports = {
     path       : "/",
     parameters : [],
     middleware : [],
-    handler    : userController.list.bind(userController),
+    handler    : ["UserController", "list"],
     description: "Fetch list of registered users"
   },
   signup: {
@@ -80,7 +77,7 @@ module.exports = {
       validator.validate("firstname", "lastname", "email", "password"),
       checkExpressValidatorStatus
     ],
-    handler    : userController.createUser.bind(userController),
+    handler    : { controller: "UserController", method: "createUser" },
     description: "Register (create) a new user"
   },
   login: {
@@ -93,7 +90,7 @@ module.exports = {
       validator.validate("email", "password"),
       checkExpressValidatorStatus
     ],
-    handler    : userController.login.bind(userController),
+    handler    : "UserController.login",
     description: "Log user in"
   },
   logout: {
@@ -101,7 +98,7 @@ module.exports = {
     path       : "/logout",
     parameters : [],
     middleware : [],
-    handler    : userController.logout.bind(userController),
+    handler    : "UserController.logout",
     description: "Logout a signed-in user"
   },
   forgotPassword: {
@@ -109,7 +106,7 @@ module.exports = {
     path       : "/password/forgot",
     parameters : [],
     middleware : [],
-    handler    : userController.forgotPasswordHandler.bind(userController),
+    handler    : ["UserController", "forgotPasswordHandler"],
     description: "Notify the app that a user has forgotten their password"
   },
   resetPassword: {
@@ -120,7 +117,7 @@ module.exports = {
       validator.validate("password"),
       checkExpressValidatorStatus
     ],
-    handler    : userController.resetPassword.bind(userController),
+    handler    : "UserController.resetPassword",
     description: "Reset user password"
   },
   updateUser: {
@@ -135,7 +132,7 @@ module.exports = {
       validator.validate("id", "firstname", "lastname", "email"),
       checkExpressValidatorStatus
     ],
-    handler    : userController.updateUser.bind(userController),
+    handler    : { controller: "UserController", method: "updateUser" },
     description: "Update user details (firstname, lastname, email)"
   },
   deleteUser: {
@@ -143,7 +140,7 @@ module.exports = {
     path       : "/",
     parameters : [":userId"],
     middleware : [loadUser, loggedIn, authorized],
-    handler    : userController.deleteUser.bind(userController),
+    handler    : ["UserController", "deleteUser"],
     description: "Delete user from the database"
   }
 };

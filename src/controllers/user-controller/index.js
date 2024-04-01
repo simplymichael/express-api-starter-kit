@@ -1,4 +1,4 @@
-const env = require("../../../dotenv");
+const env = require("../../dotenv");
 const { apiErrorResponse, apiSuccessResponse } = require("../../helpers/api-response");
 const { checkPassword, generateAuthToken, hashPassword } = require("../../helpers/auth");
 const constants = require("../../constants");
@@ -8,15 +8,19 @@ const userVerification = require("../../helpers/user-verification");
 
 
 class UserController {
-  constructor({ logger, notificationService, userService }) {
-    this.logger = logger;
-    this.notificationService = notificationService;
-    this.userService = userService;
+  #logger = null;
+  #notificationService = null;
+  #userService = null;
+
+  constructor({ logger, NotificationService, UserService }) {
+    this.#logger = logger;
+    this.#notificationService = NotificationService;
+    this.#userService = UserService;
   }
 
   async authenticate(req, res) {
     let responseData;
-    const logger = this.logger;
+    const logger = this.#logger;
     const user = req.user; // coming from the authorize middleware
 
     // The service requesting the authentication service.
@@ -62,9 +66,9 @@ class UserController {
    */
   async createUser(req, res) {
     let responseData;
-    const logger = this.logger;
-    const notificationService = this.notificationService;
-    const userService = this.userService;
+    const logger = this.#logger;
+    const notificationService = this.#notificationService;
+    const userService = this.#userService;
     const { firstname, lastname, email, password } = req.body;
 
     if(await userService.findByEmail(email)) {
@@ -95,7 +99,7 @@ class UserController {
     });
 
     const user = getPublicUserData(data);
-    const nonceService = req.app.resolve("nonceService");
+    const nonceService = req.app.resolve("NonceService");
     const nonce = await userVerification.createNonce(user, null, nonceService);
 
     // user.nonce = nonce;
@@ -123,7 +127,7 @@ class UserController {
 
   async deleteUser(req, res) {
     let responseData;
-    const userService = this.userService;
+    const userService = this.#userService;
 
     if(!req.params.userId || !req.body.userId) {
       responseData = {
@@ -188,8 +192,8 @@ class UserController {
 
   async forgotPasswordHandler(req, res) {
     let responseData;
-    const notificationService = this.notificationService;
-    const userService = this.userService;
+    const notificationService = this.#notificationService;
+    const userService = this.#userService;
     const userEmail = req.body?.email?.trim();
 
     if(!userEmail) {
@@ -212,7 +216,7 @@ class UserController {
     if(user) {
       const serializableUser = getPublicUserData(user);
       const namespace = constants.nonceNamepsace.PASSWORD_RESET;
-      const nonceService = req.app.resolve("nonceService");
+      const nonceService = req.app.resolve("NonceService");
       const nonce = await userVerification.createNonce(serializableUser, namespace, nonceService);
 
       notificationService.sendPasswordResetLink(serializableUser, nonce);
@@ -225,8 +229,8 @@ class UserController {
 
   async getUser(req, res) {
     let responseData;
-    const logger = this.logger;
-    const userService = this.userService;
+    const logger = this.#logger;
+    const userService = this.#userService;
     const userId = req.params.userId;
 
     try {
@@ -275,8 +279,8 @@ class UserController {
   /* GET users listing. */
   async list(req, res) {
     let responseData;
-    const logger = this.logger;
-    const userService = this.userService;
+    const logger = this.#logger;
+    const userService = this.#userService;
     const results = await userService.findMany({ query: req.query });
     const users = results.users.map(user => getPublicUserData(user));
 
@@ -293,8 +297,8 @@ class UserController {
 
   async login(req, res) {
     let responseData;
-    const logger = this.logger;
-    const userService = this.userService;
+    const logger = this.#logger;
+    const userService = this.#userService;
     const { email, password } = req.body;
     const userData = await userService.findByEmail(email);
 
@@ -375,7 +379,7 @@ class UserController {
 
   async resendVerificationEmail(req, res) {
     let responseData;
-    const notificationService = this.notificationService;
+    const notificationService = this.#notificationService;
     // const user = req.session.user;
     const user = req.user;
 
@@ -403,7 +407,7 @@ class UserController {
       return;
     }
 
-    const nonceService = req.app.resolve("nonceService");
+    const nonceService = req.app.resolve("NonceService");
     const serializableUser = getPublicUserData(user);
     const nonce = await userVerification.createNonce(serializableUser, null, nonceService);
 
@@ -417,8 +421,8 @@ class UserController {
 
   async resetPassword(req, res) {
     let responseData;
-    const logger = this.logger;
-    const userService = this.userService;
+    const logger = this.#logger;
+    const userService = this.#userService;
     const data        = req.body || {};
     const newPassword = data.password?.trim();
     const nonce       = data.resetCode?.trim();
@@ -454,7 +458,7 @@ class UserController {
     }
 
     const namespace = constants.nonceNamepsace.PASSWORD_RESET;
-    const nonceService = req.app.resolve("nonceService");
+    const nonceService = req.app.resolve("NonceService");
     const user      = await userVerification.verifyNonce(nonce, namespace, nonceService);
 
     if(!user?.id) {
@@ -518,8 +522,8 @@ class UserController {
   /* Update user */
   async updateUser(req, res) {
     let responseData;
-    const logger = this.logger;
-    const userService = this.userService;
+    const logger = this.#logger;
+    const userService = this.#userService;
     const { id, firstname, lastname, email } = req.body;
     const userData = await userService.findById(id);
 
@@ -553,8 +557,8 @@ class UserController {
 
   async verifyUserEmail(req, res) {
     let responseData;
-    const logger = this.logger;
-    const userService = this.userService;
+    const logger = this.#logger;
+    const userService = this.#userService;
     const verificationCode = req.query.verificationCode;
 
     if(!verificationCode) {
@@ -577,7 +581,7 @@ class UserController {
     try {
       // When they click on the link in their email, it comes here
       // with the nonce query string attached. So, we try to verify them.
-      const nonceService = req.app.resolve("nonceService");
+      const nonceService = req.app.resolve("NonceService");
       const user = await userVerification.verifyNonce(verificationCode, null, nonceService);
 
       if(!user?.id) {

@@ -1,22 +1,14 @@
 /* eslint-env node, mocha */
 
-const env = require("../../dotenv");
+const config = require("../../src/config");
 const MongooseStore = require("../../src/model/data-sources/mongoose-store");
 const Model = require("../../src/model/user-repository/mongoose/");
 const { getRandomData, runTest } = require("../_test-util");
 let testUsers = require("./_test-users.json");
 
 testUsers = testUsers.slice(0, 4);
-const mongooseStore = new MongooseStore({
-  connectionOptions: {
-    dsn      : env.DB_DSN,
-    host     : env.DB_HOST,
-    port     : env.DB_PORT,
-    username : env.DB_USERNAME,
-    password : env.DB_PASSWORD,
-    dbName   : env.DB_DBNAME,
-    exitOnConnectFail: true,
-  },
+const mongooseStore = new MongooseStore({ 
+  ...config.database.mongodb,
   logger: { log() {} },
 });
 const db = new Model({ dataSource: mongooseStore });

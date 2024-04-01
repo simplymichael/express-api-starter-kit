@@ -1,5 +1,5 @@
 const util = require("node:util");
-const env = require("../../dotenv");
+const env = require("../dotenv");
 
 module.exports = log;
 module.exports.defaultLogger = getDefaultLogger();
