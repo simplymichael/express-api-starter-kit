@@ -1,7 +1,7 @@
 /* eslint-env node, mocha */
 
 const server = require("../../src/index.js");
-const apiRoutes = require("../../src/router/routes/api/v1/users/route-definitions");
+const apiRoutes = require("../../src/routes/api/v1/users");
 const testPort = 3001;
 const baseUrl  = `http://localhost:${testPort}`;
 const apiUrl   = `${baseUrl}/api/v1`;

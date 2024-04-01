@@ -1,13 +1,11 @@
 const path     = require("path");
 const winston  = require("winston");
 require("winston-daily-rotate-file");
-const env = require("../../dotenv");
+
+const config = require("../config");
 
 
-const rootDir = ["development", "test"].includes(env.NODE_ENV.toLowerCase())
-  ? path.resolve(path.dirname(__dirname), "..")
-  : path.resolve(path.dirname(__dirname), "..");
-
+const rootDir = config.app.rootDir;
 const logDir  = `${rootDir}${path.sep}.logs`;
 
 
@@ -17,7 +15,7 @@ module.exports = createLogger;
  * @return {Object} winston logger instance
  */
 function createLogger() {
-  const label = env.NAME;
+  const label = config.app.name;
   const file = new winston.transports.DailyRotateFile({
     dirname       : logDir,
     filename      : "%DATE%.application.log",
@@ -36,7 +34,7 @@ function createLogger() {
 
   // If we're not in production then log to the `console` with the format:
   // `${info.level}: ${info.message} JSON.stringify({ ...rest }) `
-  if(env.NODE_ENV.toLowerCase() === "development") {
+  if(config.app.environment === "development") {
     logger.add(new winston.transports.Console({
       format: winston.format.simple(),
     }));
