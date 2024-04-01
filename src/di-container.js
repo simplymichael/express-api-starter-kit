@@ -72,7 +72,7 @@ container.register({
   nonceService: asClass(NonceService),
   userService: asClass(UserService),
 
-  userController: asClass(UserController),
+  UserController: asClass(UserController),
 });
 
 
