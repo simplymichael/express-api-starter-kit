@@ -1,6 +1,6 @@
 const http  = require("http");
-const env   = require("../dotenv");
 const app   = require("./app");
+const env   = require("./dotenv");
 const debug = require("./helpers/debug");
 
 const port = normalizePort(env.PORT);

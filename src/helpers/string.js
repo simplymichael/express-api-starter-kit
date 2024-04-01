@@ -1,5 +1,5 @@
 const emailValidator = require("email-validator");
-const env = require("../../dotenv");
+const env = require("../dotenv");
 
 const { NAME, HOST, PORT, URL_SCHEME, USE_WWW, EMAIL_SENDER_DOMAIN } = env;
 let scheme = URL_SCHEME.toLowerCase();

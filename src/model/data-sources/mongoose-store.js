@@ -3,29 +3,40 @@ const mongoose = require("mongoose");
 
 class MongooseStore {
   #db = null;
+  #logger = null;
+  #options = null;
 
   /**
-   *
    * @param {Object} options object with properties:
-   * @param {Object} connectionOptions: connection options
-   * @param {String} [connectionOptions.host]: the db server host
-   * @param {Number} [connectionOptions.port]: the db server port
-   * @param {String} [connectionOptions.username]: the db server username
-   * @param {String} [connectionOptions.password]: the db server user password
-   * @param {String} [connectionOptions.dbName]: the name of the database to connect to
-   * @param {String} [connectionOptions.dsn]: full DSN of the mongodb server
-   *   If the [connectionOptions.dsn] is set, it is used instead
-   *   and the other connectionOptions (except [connectionOptions.debug]) are ignored.
+   * @param {String} [options.host]: the db server host
+   * @param {Number} [options.port]: the db server port
+   * @param {String} [options.username]: the db server username
+   * @param {String} [options.password]: the db server user password
+   * @param {String} [options.dbName]: the name of the database to connect to
+   * @param {String} [options.dsn]: full DSN of the mongodb server
+   *   If the [options.dsn] is set, it is used instead
+   *   and the other options (except [options.debug]) are ignored.
    *   For this reason, when using the dsn option, also specify the database name
    *   in the DSN string.
-   * @param {Boolean} [connectionOptions.debug] determines whether or not to show debugging output
-   * @param {Boolean} [connectionOptions.exitOnConnectFail] terminate the application if connection to MongoDB fails
-   * @param {Object} [connectionOptions.logger] an object with a `log()` property
+   * @param {Boolean} [options.debug] determines whether or not to show debugging output
+   * @param {Boolean} [options.exitOnConnectFail] terminate the application if connection to MongoDB fails
+   * @param {Object} [options.logger] an object with a `log()` property
    *   for logging messages. If none is supplied, the console is used.
    */
-  constructor({ connectionOptions, logger }) {
-    this.connectionOptions = connectionOptions;
-    this.logger = logger;
+  constructor(options) {
+    const {
+      dsn      = "",
+      host     = "0.0.0.0",
+      port     = 27017,
+      username = "",
+      password = "",
+      dbName   = "users",
+      debug    = false,
+      exitOnConnectFail = false,
+    } = options;
+
+    this.#options = { dsn, host, port, username, password, dbName, debug, exitOnConnectFail };
+    this.#logger = options.logger;    
   }
 
   /**
@@ -34,16 +45,8 @@ class MongooseStore {
    * @return {resource} a (mongoose) connection instance
    */
   async connect() {
-    const options = this.connectionOptions;
-    const {
-      host = "0.0.0.0",
-      port = 27017,
-      username = "",
-      password = "",
-      dbName = "users",
-      debug = false,
-      exitOnConnectFail = false,
-    } = options;
+    const options = this.#options;
+    const { host, port, username, password, dbName, debug, exitOnConnectFail } = options;
 
     let dsn;
 
@@ -89,7 +92,6 @@ class MongooseStore {
   async disconnect() {
     await this.#db.disconnect();
     this.log({ type: "info", message: "DB disconnected" });
-    this.logger = null;
   }
 
 
@@ -107,14 +109,14 @@ class MongooseStore {
     type = type.toLowerCase();
     type = types.includes(type) ? type : "info";
 
-    if(!this.logger || typeof this.logger !== "object" || !("log" in this.logger)) {
+    if(!this.#logger || typeof this.#logger !== "object" || !("log" in this.#logger)) {
       return;
     }
 
-    if(this.logger === console) {
+    if(this.#logger === console) {
       console.log(`Mongoose ${type} log - ${message}}`);
     } else {
-      this.logger.log(type, message);
+      this.#logger.log(type, message);
     }
   }
 }

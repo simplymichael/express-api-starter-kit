@@ -1,7 +1,7 @@
 class UserService {
-  constructor({ logger, userRepository }) {
+  constructor({ logger, UserRepository }) {
     this.logger = logger;
-    this.userStore = userRepository;
+    this.userStore = UserRepository;
   }
 
   async createUser(user) {
