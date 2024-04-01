@@ -9,15 +9,23 @@ const log                    = require("./helpers/log");
 const { defaultLogger }      = require("./helpers/log");
 const { statusCodes }        = require("./helpers/http");
 //const session              = require("./middlewares/session");
-const routes                 = require("./router");
+const createRouters          = require("./router");
+const setupServices          = require("./setup-services");
+
+// Our first action is to bootstrap (aka, register) the services.
+// This way, any required services are available to route handlers 
+// and other files.
+setupServices();
+
+const routers = createRouters();
 
 const app        = express();
 const appName    = env.NAME;
 const apiVersion = env.API_VERSION;
-const { [`api-v${apiVersion}`]: apiRoutes } = routes;
+const apiRoutes  = routers[`api-v${apiVersion}`];
 
 // Make the app a DI Container
-for(const method of ["register", "resolve"]) {
+for(const method of ["resolve"]) {
   app[method] = diContainer[method].bind(diContainer);
 }
 
