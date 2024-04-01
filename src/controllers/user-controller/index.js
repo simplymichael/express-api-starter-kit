@@ -95,7 +95,7 @@ class UserController {
     });
 
     const user = getPublicUserData(data);
-    const nonceService = req.diContainer.resolve("nonceService");
+    const nonceService = req.app.resolve("nonceService");
     const nonce = await userVerification.createNonce(user, null, nonceService);
 
     // user.nonce = nonce;
@@ -212,7 +212,7 @@ class UserController {
     if(user) {
       const serializableUser = getPublicUserData(user);
       const namespace = constants.nonceNamepsace.PASSWORD_RESET;
-      const nonceService = req.diContainer.resolve("nonceService");
+      const nonceService = req.app.resolve("nonceService");
       const nonce = await userVerification.createNonce(serializableUser, namespace, nonceService);
 
       notificationService.sendPasswordResetLink(serializableUser, nonce);
@@ -403,7 +403,7 @@ class UserController {
       return;
     }
 
-    const nonceService = req.diContainer.resolve("nonceService");
+    const nonceService = req.app.resolve("nonceService");
     const serializableUser = getPublicUserData(user);
     const nonce = await userVerification.createNonce(serializableUser, null, nonceService);
 
@@ -454,7 +454,7 @@ class UserController {
     }
 
     const namespace = constants.nonceNamepsace.PASSWORD_RESET;
-    const nonceService = req.diContainer.resolve("nonceService");
+    const nonceService = req.app.resolve("nonceService");
     const user      = await userVerification.verifyNonce(nonce, namespace, nonceService);
 
     if(!user?.id) {
@@ -577,7 +577,7 @@ class UserController {
     try {
       // When they click on the link in their email, it comes here
       // with the nonce query string attached. So, we try to verify them.
-      const nonceService = req.diContainer.resolve("nonceService");
+      const nonceService = req.app.resolve("nonceService");
       const user = await userVerification.verifyNonce(verificationCode, null, nonceService);
 
       if(!user?.id) {
