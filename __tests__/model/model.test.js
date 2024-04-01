@@ -1,8 +1,8 @@
 /* eslint-env node, mocha */
 
 const config = require("../../src/config");
-const MongooseStore = require("../../src/model/data-sources/mongoose-store");
-const Model = require("../../src/model/user-repository/mongoose/");
+const MongooseStore = require("../../src/model/mongoose");
+const UserRepository = require("../../src/repositories/user-repository/mongoose/");
 const { getRandomData, runTest } = require("../_test-util");
 let testUsers = require("./_test-users.json");
 
@@ -11,7 +11,7 @@ const mongooseStore = new MongooseStore({
   ...config.database.mongodb,
   logger: { log() {} },
 });
-const db = new Model({ dataSource: mongooseStore });
+const db = new UserRepository({ MongooseStore: mongooseStore });
 
 
 async function createTestUsers(users) {

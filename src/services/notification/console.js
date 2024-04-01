@@ -1,19 +1,7 @@
-const util = require("node:util");
-const constants = require("../constants");
+const constants = require("../../constants");
 
 
-class NotificationService {
-  /**
-   * @param {Object} options
-   * @param {Object} [options.provider] a provider object that implements
-   *   the method
-   *    `sendNotificationToUser({ userId, notificationId, templateVariables })`
-   */
-  constructor({ notificationProvider, logger }) {
-    this.provider = notificationProvider;
-    this.logger = logger;
-  }
-
+class ConsoleNotificationService {
   async sendConfirmationLink(user, nonce) {
     const notificationData  = constants.notifications.ACCOUNT_ACTIVATION;
     const notificationId    = notificationData.id;
@@ -23,13 +11,11 @@ class NotificationService {
       templateVariables[prop] = value.replace(":code:", nonce);
     }
 
-    await this.provider.sendNotificationToUser({
+    await this.sendNotificationToUser({
       user,
       notificationId,
       templateVariables
     });
-
-    this.logger.log("info", `Confirmation link sent to user: ${util.inspect(user)}`);
   }
 
   async sendPasswordResetLink(user, nonce) {
@@ -41,13 +27,11 @@ class NotificationService {
       templateVariables[prop] = value.replace(":code:", nonce);
     }
 
-    await this.provider.sendNotificationToUser({
+    await this.sendNotificationToUser({
       user,
       notificationId,
       templateVariables
     });
-
-    this.logger.log("info", `Password reset link sent to user: ${util.inspect(user)}`);
   }
 
   async resendConfirmationLink(user, nonce) {
@@ -58,15 +42,24 @@ class NotificationService {
       verificationCode: nonce,
     };
 
-    await this.provider.sendNotificationToUser({
+    await this.sendNotificationToUser({
       user,
       notificationId,
       templateVariables
     });
+  }
 
-    this.logger.log("info", `Confirmation link re-sent to user: ${util.inspect(user)}`);
+
+  // Private methods 
+  async sendNotificationToUser(options) {
+    const { userId, notificationId, templateVariables } = options;
+    console.log(`
+      Sending notification ${notificationId}
+      to user '${userId}'
+      with variables '${templateVariables}'
+    `);
   }
 }
 
 
-module.exports = NotificationService;
+module.exports = ConsoleNotificationService;

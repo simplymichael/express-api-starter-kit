@@ -6,14 +6,16 @@ const User = mongoose.model("User", UserSchema);
 
 // implements (not-yet-defined) interface UserRepository
 class MongooseUserRepository {
+  #dataSource = null;
+
   /**
    *
    * @param {Object}
    * @param {Object} [options.dataSource]: a mongoose data source/connection object
    *   with methods: connect() and disconnect()
    */
-  constructor({ dataSource }) {
-    this.dataSource = dataSource;
+  constructor({ MongooseStore }) {
+    this.#dataSource = MongooseStore;
   }
 
   /**
@@ -31,7 +33,7 @@ class MongooseUserRepository {
    *   - users {array} the actual list of returned users that match the search term
    */
   async createUser(userData) {
-    const dataSource = this.dataSource;
+    const dataSource = this.#dataSource;
     const { firstname, lastname, email, role, status, password } = userData;
 
     try {
@@ -94,7 +96,7 @@ class MongooseUserRepository {
    *   - users {array} the actual list of returned users that match the search term
    */
   async findMany(options) {
-    const dataSource = this.dataSource;
+    const dataSource = this.#dataSource;
 
     options = options || {};
     let {
@@ -157,7 +159,7 @@ class MongooseUserRepository {
    */
   async search(options) {
     options = options || {};
-    const dataSource = this.dataSource();
+    const dataSource = this.#dataSource();
     let { query, by = "", page = 1, limit = 20, sort = ""} = options;
     by = (typeof by === "string" ? by : "").trim();
     sort = (typeof sort === "string" ? sort : "").trim();
@@ -217,17 +219,17 @@ class MongooseUserRepository {
    * @return user object
    */
   async findByEmail(email) {
-    await this.dataSource.connect();
+    await this.#dataSource.connect();
     const user = (await User.generateQuery({ where: {email} }).exec())[0];
-    this.dataSource.disconnect();
+    this.#dataSource.disconnect();
 
     return user;
   }
 
   async findById(userId) {
-    await this.dataSource.connect();
+    await this.#dataSource.connect();
     const user = await User.getById(userId);
-    this.dataSource.disconnect();
+    this.#dataSource.disconnect();
 
     return user;
   }
@@ -247,17 +249,17 @@ class MongooseUserRepository {
       updateData.name = name;
     }
 
-    await this.dataSource.connect();
+    await this.#dataSource.connect();
     const user = await User.updateUser(userId, updateData);
-    this.dataSource.disconnect();
+    this.#dataSource.disconnect();
 
     return user;
   }
 
   async deleteUser(userId) {
-    await this.dataSource.connect();
+    await this.#dataSource.connect();
     await User.deleteUser(userId);
-    this.dataSource.disconnect();
+    this.#dataSource.disconnect();
   }
 
   static generateOrderBy(sort) {

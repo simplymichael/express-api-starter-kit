@@ -1,5 +1,7 @@
-const v1 = require("./api-v1-routes");
+const v1 = require("./api-v1-router");
 
-module.exports = {
-  "api-v1": v1,
+module.exports = function createRouters() {
+  return {
+    "api-v1": v1(),
+  };
 };

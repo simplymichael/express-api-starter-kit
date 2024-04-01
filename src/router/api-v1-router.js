@@ -9,14 +9,17 @@ const rootDir = config.app.rootDir;
 const routesPath = `${rootDir}/src/routes/api/v1`;
 const routeFiles = fs.readdirSync(routesPath);
 
-for(let i = 0, len = routeFiles.length; i < len; i++) {
-  const filename = path.basename(routeFiles[i], ".js");
-  const routeDefinitions = require(`${routesPath}/${filename}`);
 
-  router[filename] = createApiRoutes(routeDefinitions);
-}
+module.exports = function createRouter() {
+  for(let i = 0, len = routeFiles.length; i < len; i++) {
+    const filename = path.basename(routeFiles[i], ".js");
+    const routeDefinitions = require(`${routesPath}/${filename}`);
+  
+    router[filename] = createApiRoutes(routeDefinitions);
+  }
 
-module.exports = router;
+  return router;
+};
 
 
 // Helper functions
@@ -100,10 +103,6 @@ function createRequestHandler(controllerRef, methodRef) {
 }
 
 function makeObjectADIContainer(obj) {
-  if(!("register" in obj)) {
-    obj.register = diContainer.register.bind(diContainer);
-  }
-
   if(!("resolve" in obj)) {
     obj.resolve = diContainer.resolve.bind(diContainer);
   }
