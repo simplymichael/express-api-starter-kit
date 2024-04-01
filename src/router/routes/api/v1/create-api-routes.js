@@ -1,10 +1,4 @@
 const express = require("express");
-const diContainer = require("../../../../di-container");
-
-const injectDiContainerMiddleware = (req, res, next) => {
-  req.diContainer = diContainer;
-  next();
-};
 
 
 module.exports = function createApiRoutes(routeDefinitions) {
@@ -13,9 +7,8 @@ module.exports = function createApiRoutes(routeDefinitions) {
   Object.values(routeDefinitions).forEach((rd) => {
     const { method, path, parameters, middleware, handler } = rd;
     const url = path + (parameters.length > 0 ? `${parameters.join("/")}` : "");
-    const middlewares = [injectDiContainerMiddleware].concat(middleware);
 
-    router[method.toLowerCase()](url, ...middlewares, handler);
+    router[method.toLowerCase()](url, ...middleware, handler);
   });
 
   return router;
