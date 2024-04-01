@@ -1,11 +1,11 @@
-const diContainer = require("../../../../../di-container");
-const authorized = require("../../../../../middlewares/auth");
-const loadUser = require("../../../../../middlewares/load-user");
-const loggedIn = require("../../../../../middlewares/logged-in");
-const notLoggedIn = require("../../../../../middlewares/not-logged-in");
-const restrictUserToSelf = require("../../../../../middlewares/restrict-user-to-self");
-const validator = require("../../../../../middlewares/validators/_validator");
-const checkExpressValidatorStatus = require("../../../../../middlewares/express-validator-status-checker");
+const diContainer = require("../../../di-container");
+const authorized = require("../../../middlewares/auth");
+const loadUser = require("../../../middlewares/load-user");
+const loggedIn = require("../../../middlewares/logged-in");
+const notLoggedIn = require("../../../middlewares/not-logged-in");
+const restrictUserToSelf = require("../../../middlewares/restrict-user-to-self");
+const validator = require("../../../middlewares/validators/_validator");
+const checkExpressValidatorStatus = require("../../../middlewares/express-validator-status-checker");
 
 const userController = diContainer.resolve("userController");
 
