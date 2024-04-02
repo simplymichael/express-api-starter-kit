@@ -1,4 +1,4 @@
-const env = require("../dotenv");
-const debug = require("debug")(env.DEBUG_KEY);
+const config = require("../config");
+const debug = require("debug")(config.app.debugKey);
 
 module.exports = debug;

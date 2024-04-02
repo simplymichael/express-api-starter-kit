@@ -1,10 +1,10 @@
-const env = require("../../dotenv");
-const { apiErrorResponse, apiSuccessResponse } = require("../../helpers/api-response");
-const { checkPassword, generateAuthToken, hashPassword } = require("../../helpers/auth");
-const constants = require("../../constants");
-const { statusCodes }  = require("../../helpers/http");
-const { getPublicUserData } = require("../../helpers/security");
-const userVerification = require("../../helpers/user-verification");
+const config = require("../config");
+const constants = require("../constants");
+const { apiErrorResponse, apiSuccessResponse } = require("../helpers/api-response");
+const { checkPassword, generateAuthToken, hashPassword } = require("../helpers/auth");
+const { statusCodes }  = require("../helpers/http");
+const { getPublicUserData } = require("../helpers/security");
+const userVerification = require("../helpers/user-verification");
 
 
 class UserController {
@@ -358,8 +358,8 @@ class UserController {
     // req.session.user = user; // Maintain the user's data in current session
 
     // Create an auth token for the user so we can validate future requests
-    const tokenSecret = env.AUTH_TOKEN_SECRET;
-    const tokenExpiry = env.AUTH_TOKEN_EXPIRY;
+    const tokenSecret = config.app.authTokenSecret;
+    const tokenExpiry = config.app.authTokenExpiry;
     const { token, expiry } = generateAuthToken(
       user.id, user.email, tokenSecret, eval(tokenExpiry) + "s"
     );

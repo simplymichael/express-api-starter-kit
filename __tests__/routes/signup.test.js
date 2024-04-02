@@ -1,6 +1,6 @@
 /* eslint-env node, mocha */
 
-const env = require("../../src/dotenv");
+const config = require("../../src/config");
 const allTestUsers = require("../model/_test-users.json");
 const { getRandomData, runTest } = require("../_test-util");
 const { createUser, loginAndDeleteUser } = require("./_route-functions");
@@ -8,9 +8,9 @@ const { apiPaths, usersUrl } = require("./_server");
 
 
 const testUsers = allTestUsers.slice(4, 6);
-const passwordMinLen = env.PASSWORD_MIN_LENGTH;
-const passwordMaxLen = env.PASSWORD_MAX_LENGTH;
-const forbiddenPasswords = env.DISALLOWED_PASSWORDS.split(",").map(str => str.trim());
+const passwordMinLen = config.app.password.minLength;
+const passwordMaxLen = config.app.password.maxLength;
+const forbiddenPasswords = config.app.password.disallowedPasswords;
 const signupRoute = `${usersUrl}${apiPaths.signup.path}`;
 
 function cloneUser(user) {

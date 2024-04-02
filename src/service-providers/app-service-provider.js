@@ -6,9 +6,9 @@ const winstonLogger = require("../services/log/winston-logger");
 const NonceService = require("../services/nonce-service");
 const ServiceProvider = require("./service-provider");
 
-const cache = ["production", "staging"].includes(config.environment)
-  ? redisCache
-  : memoryCache;
+
+const connectToRedis = ["production", "staging"].includes(config.environment);
+const cache = connectToRedis ? redisCache : memoryCache;
 
 
 class AppServiceProvider extends ServiceProvider {
@@ -18,8 +18,17 @@ class AppServiceProvider extends ServiceProvider {
 
   register() {
     this.container.bindWithFunction("logger", winstonLogger);
-    this.container.bindWithFunction("redisConnection", createRedisConnection, config.redis);
-    this.container.bindWithFunction("CacheService", cache, this.container.resolve("redisConnection"));
+
+    if(connectToRedis) {
+      this.container.bindWithFunction("redisConnection", createRedisConnection, config.redis);
+    }
+
+    if(cache === redisCache) {
+      this.container.bindWithFunction("CacheService", cache, this.container.resolve("redisConnection"));
+    } else {
+      this.container.bindWithFunction("CacheService", cache);
+    }
+
     this.container.bindWithClass("NonceService", NonceService);
   }
 }

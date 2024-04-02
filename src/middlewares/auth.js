@@ -1,4 +1,4 @@
-const env = require("../dotenv");
+const config = require("../config");
 const { apiErrorResponse } = require("../helpers/api-response");
 const {
   getAuthTokenFromAuthorizationHeader,
@@ -25,7 +25,7 @@ async function auth(req, res, next) {
       return res.status(statusCodes.unauthorized).json(responseData);
     }
 
-    const tokenSecret = env.AUTH_TOKEN_SECRET;
+    const tokenSecret = config.app.authTokenSecret;
     const userService = req.app.resolve("UserService");
     const user = await getUserFromAuthToken(bearerToken, tokenSecret, userService);
 

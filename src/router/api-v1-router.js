@@ -3,6 +3,7 @@ const path = require("node:path");
 const express = require("express");
 const config = require("../config");
 const diContainer = require("../di-container");
+const { makeObjectADIContainer } = require("../helpers/di-container");
 
 const router = {};
 const rootDir = config.app.rootDir;
@@ -100,10 +101,4 @@ function createRequestHandler(controllerRef, methodRef) {
   }
 
   return controller[methodName].bind(controller);
-}
-
-function makeObjectADIContainer(obj) {
-  if(!("resolve" in obj)) {
-    obj.resolve = diContainer.resolve.bind(diContainer);
-  }
 }

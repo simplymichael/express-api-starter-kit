@@ -1,4 +1,4 @@
-const env = require("../dotenv");
+const config = require("../config");
 
 
 module.exports = {
@@ -9,7 +9,7 @@ module.exports = {
 
 async function createNonce(user, namespace, nonceService) {
   const service    = nonceService;
-  const duration   = 1000 * 60 * Number(env.VERIFICATION_CODE_EXPIRY);
+  const duration   = config.app.verificationCodeExpiry;
   const nonce      = await service.createNonce();
   const boundNonce = getNamespacedNonce(nonce, namespace);
 

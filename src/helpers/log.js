@@ -1,5 +1,5 @@
 const util = require("node:util");
-const env = require("../dotenv");
+const config = require("../config");
 
 module.exports = log;
 module.exports.defaultLogger = getDefaultLogger();
@@ -40,7 +40,7 @@ function log(logger, logData) {
  */
 function getDefaultLogger() {
   let logger;
-  const environment = env.NODE_ENV.toLowerCase();
+  const environment = config.app.environment;
 
   if(environment === "test") {
     logger =  {
