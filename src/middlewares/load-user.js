@@ -1,4 +1,4 @@
-const env = require("../dotenv");
+const config = require("../config");
 const {
   getAuthTokenFromAuthorizationHeader,
   getUserFromAuthToken
@@ -8,7 +8,7 @@ module.exports = loadUser;
 
 async function loadUser(req, res, next) {
   try {
-    const tokenSecret = env.AUTH_TOKEN_SECRET;
+    const tokenSecret = config.app.authTokenSecret;
     const authString  = req.header("Authorization") || "";
     const bearerToken = getAuthTokenFromAuthorizationHeader(authString);
     const userService = req.app.resolve("UserService");

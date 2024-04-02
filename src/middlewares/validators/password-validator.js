@@ -1,11 +1,11 @@
 const { body } = require("express-validator");
-const env = require("../../dotenv");
+const config = require("../../config");
 
 module.exports = () => {
-  const MIN = env.PASSWORD_MIN_LENGTH;
-  const MAX = env.PASSWORD_MAX_LENGTH;
-  const SPECIAL_CHARS = env.PASSWORD_SPECIAL_CHARS.trim();
-  const DISALLOWED_LIST = env.DISALLOWED_PASSWORDS.split(",").map(str => str.trim());
+  const MIN = config.app.password.minLength;
+  const MAX = config.app.password.maxLength;
+  const SPECIAL_CHARS = config.app.password.specialChars;
+  const DISALLOWED_LIST = config.app.password.disallowedPasswords;
 
   return [
     body("password").trim()

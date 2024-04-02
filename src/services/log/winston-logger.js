@@ -1,12 +1,9 @@
-const path     = require("path");
 const winston  = require("winston");
 require("winston-daily-rotate-file");
-
 const config = require("../../config");
 
-
 const rootDir = config.app.rootDir;
-const logDir  = `${rootDir}${path.sep}.logs`;
+const logDir  = `${rootDir}/.logs`;
 
 
 module.exports = createLogger;

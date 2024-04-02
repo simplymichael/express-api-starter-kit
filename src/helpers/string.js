@@ -1,9 +1,10 @@
 const emailValidator = require("email-validator");
-const env = require("../dotenv");
+const config = require("../config");
 
-const { NAME, HOST, PORT, URL_SCHEME, USE_WWW, EMAIL_SENDER_DOMAIN } = env;
-let scheme = URL_SCHEME.toLowerCase();
-const apiVersion = env.API_VERSION;
+let scheme = config.app.urlScheme;
+const appHost = config.app.host;
+const appPort = config.app.port;
+const apiVersion = config.app.apiVersion;
 
 // if(!(["http", "https", "http://", "https://"].includes(scheme)))
 if(!(/^https?(:\/\/)?/.test(scheme))) {
@@ -13,9 +14,9 @@ if(!(/^https?(:\/\/)?/.test(scheme))) {
 scheme = scheme.split(/:\/\//)[0] + "://";
 
 const httpRegex  = /^https?:\/\//i;
-const prefixHost = Number(USE_WWW) === 0 ? HOST : `www.${HOST}`;
+const prefixHost = config.app.useWWW ? `www.${appHost}` : appHost;
 const host  = (httpRegex.test(prefixHost)) ? prefixHost : `${scheme}${prefixHost}`;
-const port  = [80, 443].includes(Number(PORT)) ? "" : PORT;
+const port  = [80, 443].includes(Number(appPort)) ? ""  : appPort;
 const baseUrl = port ? `${host}:${port}` : host;
 
 module.exports = {
@@ -37,7 +38,7 @@ function isEmail(email) {
 // But we also want to allow for the flexibility
 // of completely filling it in, for example, in cases where we
 // want a different domain name prefix to the email.
-function makeValidEmail(email, emailSuffixUrl = EMAIL_SENDER_DOMAIN) {
+function makeValidEmail(email, emailSuffixUrl = config.app.emailSenderDomain) {
   if(!isEmail(email)) {
     email = `${email.split("@")[0]}@${emailSuffixUrl}`;
   }
@@ -46,7 +47,7 @@ function makeValidEmail(email, emailSuffixUrl = EMAIL_SENDER_DOMAIN) {
 }
 
 function makeValidEmailSenderName(name) {
-  return `${toTitleCase(NAME)} ${name}`;
+  return `${toTitleCase(config.app.name)} ${name}`;
 }
 
 function makeValidSiteUrl(url, apiBasePath = `/api/v${apiVersion}/users`) {

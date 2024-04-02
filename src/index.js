@@ -1,9 +1,9 @@
-const http  = require("http");
-const app   = require("./app");
-const env   = require("./dotenv");
-const debug = require("./helpers/debug");
+const http   = require("http");
+const app    = require("./app");
+const config = require("./config");
+const debug  = require("./helpers/debug");
 
-const port = normalizePort(env.PORT);
+const port = normalizePort(config.app.port);
 
 
 function startServer({ port, onError, onListening }) {

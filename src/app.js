@@ -1,16 +1,16 @@
-const util                   = require("node:util");
-const express                = require("express");
-const createError            = require("http-errors");
-const cookieParser           = require("cookie-parser");
-const diContainer            = require("./di-container");
-const env                    = require("./dotenv");
-const { apiSuccessResponse } = require("./helpers/api-response");
-const log                    = require("./helpers/log");
-const { defaultLogger }      = require("./helpers/log");
-const { statusCodes }        = require("./helpers/http");
-//const session              = require("./middlewares/session");
-const createRouters          = require("./router");
-const setupServices          = require("./setup-services");
+const util                       = require("node:util");
+const express                    = require("express");
+const createError                = require("http-errors");
+const cookieParser               = require("cookie-parser");
+const config                     = require("./config");
+const { apiSuccessResponse }     = require("./helpers/api-response");
+const { makeObjectADIContainer } = require("./helpers/di-container");
+const log                        = require("./helpers/log");
+const { defaultLogger }          = require("./helpers/log");
+const { statusCodes }            = require("./helpers/http");
+//const session                  = require("./middlewares/session");
+const createRouters              = require("./router");
+const setupServices              = require("./setup-services");
 
 // Our first action is to bootstrap (aka, register) the services.
 // This way, any required services are available to route handlers 
@@ -20,14 +20,12 @@ setupServices();
 const routers = createRouters();
 
 const app        = express();
-const appName    = env.NAME;
-const apiVersion = env.API_VERSION;
+const appName    = config.app.name;
+const apiVersion = config.app.apiVersion;
 const apiRoutes  = routers[`api-v${apiVersion}`];
 
 // Make the app a DI Container
-for(const method of ["resolve"]) {
-  app[method] = diContainer[method].bind(diContainer);
-}
+makeObjectADIContainer(app);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -46,7 +44,7 @@ app.use(cookieParser());
 // CORS handler
 app.use((req, res, next) => {
   const originHeader    = req.get("origin");
-  const allowedOrigins  = env.ALLOWED_ORIGINS.split(/[\s+,;]+/).map(o => o.trim());
+  const allowedOrigins  = config.app.allowedOrigins;
   const allowAllOrigins = allowedOrigins.includes("*");
 
   if(originHeader && (allowedOrigins.includes(originHeader) || allowAllOrigins)) {
@@ -145,9 +143,9 @@ app.get("/api", (req, res) => {
 
 // Fetch available routes for each individual API path (as HTML)
 app.get(`${apiVersionBasePath}/:apiType/routes`, (req, res) => {
-  const apiType     = req.params.apiType; // user, example, etc api
+  const apiType     = req.params.apiType; // users, orders, etc API
   const apiPath     = `${apiVersionBasePath}/${apiType}`;
-  const definitions = require(`./router/routes/${apiPath}/route-definitions`);
+  const definitions = require(`./routes/${apiPath}`);
 
   if(req.query.view?.toLowerCase() === "json") {
     return asJSON();

@@ -10,7 +10,7 @@ const config = {
       password : env.DB_PASSWORD,
       dbName   : env.DB_DBNAME,
       debug    : false,
-      exitOnConnectFail: true,
+      exitOnConnectFail: false,
     },
   },
 };
