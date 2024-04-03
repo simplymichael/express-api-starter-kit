@@ -26,7 +26,7 @@ async function auth(req, res, next) {
     }
 
     const tokenSecret = config.app.authTokenSecret;
-    const userService = req.app.resolve("UserService");
+    const userService = req.app.resolve("userService");
     const user = await getUserFromAuthToken(bearerToken, tokenSecret, userService);
 
     if(!user) {

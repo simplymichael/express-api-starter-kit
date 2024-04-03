@@ -4,8 +4,8 @@ const crypto = require("crypto");
 class NonceService {
   #cacheService = null;
 
-  constructor({ CacheService }) {
-    this.#cacheService = CacheService;
+  constructor({ cacheService }) {
+    this.#cacheService = cacheService;
   }
 
   /**

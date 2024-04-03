@@ -11,7 +11,7 @@ async function loadUser(req, res, next) {
     const tokenSecret = config.app.authTokenSecret;
     const authString  = req.header("Authorization") || "";
     const bearerToken = getAuthTokenFromAuthorizationHeader(authString);
-    const userService = req.app.resolve("UserService");
+    const userService = req.app.resolve("userService");
     const user = await getUserFromAuthToken(bearerToken, tokenSecret, userService);
 
     req.user = user;
