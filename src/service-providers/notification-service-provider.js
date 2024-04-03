@@ -14,7 +14,7 @@ class NotificationServiceProvider extends ServiceProvider {
   }
 
   register() {
-    this.container.bindWithClass("NotificationService", NotificationService);
+    this.container.bindWithClass("notificationService", NotificationService);
   }
 }
 

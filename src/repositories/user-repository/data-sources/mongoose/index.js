@@ -5,17 +5,17 @@ const User = mongoose.model("User", UserSchema);
 
 
 // implements (not-yet-defined) interface UserRepository
-class MongooseUserRepository {
-  #dataSource = null;
+class MongooseStore {
+  #dbConn = null;
 
   /**
    *
    * @param {Object}
-   * @param {Object} [options.dataSource]: a mongoose data source/connection object
+   * @param {Object} [options.mongooseConnection]: a mongoose connection object
    *   with methods: connect() and disconnect()
    */
-  constructor({ MongooseStore }) {
-    this.#dataSource = MongooseStore;
+  constructor({ mongooseConnection }) {
+    this.#dbConn = mongooseConnection;
   }
 
   /**
@@ -33,7 +33,7 @@ class MongooseUserRepository {
    *   - users {array} the actual list of returned users that match the search term
    */
   async createUser(userData) {
-    const dataSource = this.#dataSource;
+    const dataSource = this.#dbConn;
     const { firstname, lastname, email, role, status, password } = userData;
 
     try {
@@ -82,6 +82,34 @@ class MongooseUserRepository {
     }
   }
 
+  async updateUser(userId, updateData) {
+    const name = {};
+
+    if(updateData.firstname) {
+      name.first = updateData.firstname;
+    }
+
+    if(updateData.lastname) {
+      name.last = updateData.lastname;
+    }
+
+    if(Object.keys(name).length > 0) {
+      updateData.name = name;
+    }
+
+    await this.#dbConn.connect();
+    const user = await User.updateUser(userId, updateData);
+    this.#dbConn.disconnect();
+
+    return user;
+  }
+
+  async deleteUser(userId) {
+    await this.#dbConn.connect();
+    await User.deleteUser(userId);
+    this.#dbConn.disconnect();
+  }
+
   /**
    * @param object with members:
    *   - firstname {string} filter by users with matching firstnames (optional)
@@ -96,7 +124,7 @@ class MongooseUserRepository {
    *   - users {array} the actual list of returned users that match the search term
    */
   async findMany(options) {
-    const dataSource = this.#dataSource;
+    const dataSource = this.#dbConn;
 
     options = options || {};
     let {
@@ -130,7 +158,7 @@ class MongooseUserRepository {
     }
 
     await dataSource.connect();
-    const orderBy = MongooseUserRepository.generateOrderBy(sort);
+    const orderBy = MongooseStore.generateOrderBy(sort);
     const queryParams = { where, page, limit, orderBy };
     const allUsersCount = await User.countUsers(where);
     const results = await User.generateQuery(queryParams).exec();
@@ -159,7 +187,7 @@ class MongooseUserRepository {
    */
   async search(options) {
     options = options || {};
-    const dataSource = this.#dataSource();
+    const dataSource = this.#dbConn();
     let { query, by = "", page = 1, limit = 20, sort = ""} = options;
     by = (typeof by === "string" ? by : "").trim();
     sort = (typeof sort === "string" ? sort : "").trim();
@@ -169,7 +197,7 @@ class MongooseUserRepository {
       throw new Error("Please specify the search term");
     }
 
-    const orderBy = MongooseUserRepository.generateOrderBy(sort);
+    const orderBy = MongooseStore.generateOrderBy(sort);
     const regex = new RegExp(query, "i");
     const queryParams = { by, page, limit, orderBy };
 
@@ -218,48 +246,20 @@ class MongooseUserRepository {
   /**
    * @return user object
    */
-  async findByEmail(email) {
-    await this.#dataSource.connect();
+  async findOneByEmail(email) {
+    await this.#dbConn.connect();
     const user = (await User.generateQuery({ where: {email} }).exec())[0];
-    this.#dataSource.disconnect();
+    this.#dbConn.disconnect();
 
     return user;
   }
 
-  async findById(userId) {
-    await this.#dataSource.connect();
+  async findOneById(userId) {
+    await this.#dbConn.connect();
     const user = await User.getById(userId);
-    this.#dataSource.disconnect();
+    this.#dbConn.disconnect();
 
     return user;
-  }
-
-  async updateUser(userId, updateData) {
-    const name = {};
-
-    if(updateData.firstname) {
-      name.first = updateData.firstname;
-    }
-
-    if(updateData.lastname) {
-      name.last = updateData.lastname;
-    }
-
-    if(Object.keys(name).length > 0) {
-      updateData.name = name;
-    }
-
-    await this.#dataSource.connect();
-    const user = await User.updateUser(userId, updateData);
-    this.#dataSource.disconnect();
-
-    return user;
-  }
-
-  async deleteUser(userId) {
-    await this.#dataSource.connect();
-    await User.deleteUser(userId);
-    this.#dataSource.disconnect();
   }
 
   static generateOrderBy(sort) {
@@ -288,4 +288,4 @@ class MongooseUserRepository {
   }
 }
 
-module.exports = MongooseUserRepository;
+module.exports = MongooseStore;

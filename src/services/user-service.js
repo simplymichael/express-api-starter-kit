@@ -1,43 +1,43 @@
 class UserService {
   #logger = null;
-  #userStore = null;
+  #userRepository = null;
 
-  constructor({ logger, UserRepository }) {
+  constructor({ logger, userRepository }) {
     this.#logger = logger;
-    this.#userStore = UserRepository;
+    this.#userRepository = userRepository;
   }
 
   async createUser(user) {
-    const newUser = await this.#userStore.createUser(user);
+    const newUser = await this.#userRepository.addUser(user);
     this.#logger.log("info", `User created: ${newUser}`);
 
     return newUser;
   }
 
+  async updateUser(userId, updateData) {
+    const user = await this.findById(userId);
+    const updated = await this.#userRepository.updateUser(userId, updateData);
+    this.#logger.log("info", `User updated: ${user} to ${updated}`);
+
+    return updated;
+  }
+
   async deleteUser(userId) {
     const user = await this.findById(userId);
-    await this.#userStore.deleteUser(userId);
+    await this.#userRepository.removeUser(userId);
     this.#logger.log("info", `Deleted user: ${user}`);
   }
 
   async findMany(options) {
-    return await this.#userStore.findMany(options);
+    return await this.#userRepository.findBy(options);
   }
 
   async findById(userId) {
-    return await this.#userStore.findById(userId);
+    return await this.#userRepository.findOneById(userId);
   }
 
   async findByEmail(email) {
-    return await this.#userStore.findByEmail(email);
-  }
-
-  async updateUser(userId, updateData) {
-    const user = await this.findById(userId);
-    const updated = await this.#userStore.updateUser(userId, updateData);
-    this.#logger.log("info", `User updated: ${user} to ${updated}`);
-
-    return updated;
+    return await this.#userRepository.findOneByEmail(email);
   }
 }
 

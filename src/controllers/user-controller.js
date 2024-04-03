@@ -12,45 +12,21 @@ class UserController {
   #notificationService = null;
   #userService = null;
 
-  constructor({ logger, NotificationService, UserService }) {
+  constructor({ logger, notificationService, userService }) {
     this.#logger = logger;
-    this.#notificationService = NotificationService;
-    this.#userService = UserService;
+    this.#notificationService = notificationService;
+    this.#userService = userService;
   }
 
   async authenticate(req, res) {
-    let responseData;
     const logger = this.#logger;
     const user = req.user; // coming from the authorize middleware
-
-    // The service requesting the authentication service.
-    // Will enable us to verify allowed services in the future.
-    const service = getOriginatingService();
-
-    if(!service || !supportsService(service)) {
-      responseData = {
-        error: apiErrorResponse({
-          message  : `Unknown service: ${service}`,
-          field    : "service",
-          location : "",
-          value    : service
-        }),
-      };
-
-      logger.log(
-        "info",
-        `Could not perform authentication. Reason: Unknown service: ${service}.`
-      );
-
-      res.status(statusCodes.badRequest).json(responseData);
-      return;
-    }
 
     const authenticatedUser = getPublicUserData(user);
 
     logger.log(
       "info",
-      `User authentication successful for service: "${service}" and user: "${user.id}".`
+      `User authentication successful for user: "${user.id}".`
     );
 
     res.status(statusCodes.ok).json(apiSuccessResponse({ user: authenticatedUser }));
@@ -99,7 +75,7 @@ class UserController {
     });
 
     const user = getPublicUserData(data);
-    const nonceService = req.app.resolve("NonceService");
+    const nonceService = getNonceService(req);
     const nonce = await userVerification.createNonce(user, null, nonceService);
 
     // user.nonce = nonce;
@@ -216,7 +192,7 @@ class UserController {
     if(user) {
       const serializableUser = getPublicUserData(user);
       const namespace = constants.nonceNamepsace.PASSWORD_RESET;
-      const nonceService = req.app.resolve("NonceService");
+      const nonceService = getNonceService(req);
       const nonce = await userVerification.createNonce(serializableUser, namespace, nonceService);
 
       notificationService.sendPasswordResetLink(serializableUser, nonce);
@@ -407,7 +383,7 @@ class UserController {
       return;
     }
 
-    const nonceService = req.app.resolve("NonceService");
+    const nonceService = getNonceService(req);
     const serializableUser = getPublicUserData(user);
     const nonce = await userVerification.createNonce(serializableUser, null, nonceService);
 
@@ -458,7 +434,7 @@ class UserController {
     }
 
     const namespace = constants.nonceNamepsace.PASSWORD_RESET;
-    const nonceService = req.app.resolve("NonceService");
+    const nonceService = getNonceService(req);
     const user      = await userVerification.verifyNonce(nonce, namespace, nonceService);
 
     if(!user?.id) {
@@ -581,7 +557,7 @@ class UserController {
     try {
       // When they click on the link in their email, it comes here
       // with the nonce query string attached. So, we try to verify them.
-      const nonceService = req.app.resolve("NonceService");
+      const nonceService = getNonceService(req);
       const user = await userVerification.verifyNonce(verificationCode, null, nonceService);
 
       if(!user?.id) {
@@ -663,10 +639,6 @@ module.exports = UserController;
 
 
 // Helper functions
-function getOriginatingService() {
-  return "service"; // TO DO: implement
-}
-
-function supportsService(service) {
-  return service === "service"; // TO DO: implement
+function getNonceService(req) {
+  return req.app.resolve("nonceService");
 }

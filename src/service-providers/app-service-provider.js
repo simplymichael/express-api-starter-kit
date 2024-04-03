@@ -1,5 +1,5 @@
 const config = require("../config");
-const createRedisConnection = require("../model/redis");
+const createRedisConnection = require("../connectors/redis");
 const memoryCache = require("../services/cache/memory-cache");
 const redisCache = require("../services/cache/redis-cache");
 const winstonLogger = require("../services/log/winston-logger");
@@ -24,12 +24,12 @@ class AppServiceProvider extends ServiceProvider {
     }
 
     if(cache === redisCache) {
-      this.container.bindWithFunction("CacheService", cache, this.container.resolve("redisConnection"));
+      this.container.bindWithFunction("cacheService", cache, this.container.resolve("redisConnection"));
     } else {
-      this.container.bindWithFunction("CacheService", cache);
+      this.container.bindWithFunction("cacheService", cache);
     }
 
-    this.container.bindWithClass("NonceService", NonceService);
+    this.container.bindWithClass("nonceService", NonceService);
   }
 }
 
