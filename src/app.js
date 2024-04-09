@@ -1,13 +1,11 @@
-const util                       = require("node:util");
 const express                    = require("express");
 const createError                = require("http-errors");
 const cookieParser               = require("cookie-parser");
 const config                     = require("./config");
-const { apiSuccessResponse }     = require("./helpers/api-response");
+const { apiErrorResponse, apiSuccessResponse } = require("./helpers/api-response");
 const { makeObjectADIContainer } = require("./helpers/di-container");
-const log                        = require("./helpers/log");
-const { defaultLogger }          = require("./helpers/log");
 const { statusCodes }            = require("./helpers/http");
+const httpRequestsLogger         = require("./middlewares/http-requests-logger");
 //const session                  = require("./middlewares/session");
 const createRouters              = require("./router");
 const setupServices              = require("./setup-services");
@@ -24,12 +22,15 @@ const appName    = config.app.name;
 const apiVersion = config.app.apiVersion;
 const apiRoutes  = routers[`api-v${apiVersion}`];
 
-// Make the app a DI Container
+// Make the app a DI Container 
+// We can the resolve service in middleware and route handlers using: 
+// req.app.resolve(serviceName);
 makeObjectADIContainer(app);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(httpRequestsLogger(app));
 
 // No longer using session, just depend solely on JSON Web Tokens for
 // authentication and authorization.
@@ -51,10 +52,12 @@ app.use((req, res, next) => {
     res.header("Access-Control-Allow-Origin", originHeader);
   }
 
+  res.setHeader("Access-Control-Allow-Credentials", true);
   res.setHeader("Access-Control-Allow-Methods", ["GET", "POST", "PUT", "DELETE"].join(", "));
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
   next();
 });
+app.options("/*", (_, res) => res.sendStatus(200));
 
 /** ROUTING **/
 const apiVersionBasePath = `/api/v${apiVersion}`;
@@ -258,25 +261,22 @@ app.use((req, res, next) => next(createError(404)));
 // "routes catch-all" handler
 // eslint-disable-next-line
 app.use((err, req, res, next) => {
+  const logger = req.app.resolve("logger");
   const environment = req.app.get("env");
   const message = "The resource you're looking for does not exist";
+  let response;
 
-  res.status = err.status || 500;
+  res.status = err.status || statusCodes.serverError;
 
-  log(defaultLogger, {
-    type: "error",
-    message: message,
-    data: {
-      error: `"${util.inspect(err)}"`,
-      handler: "catch-all route handler"
-    },
-  });
+  logger.error(err);
 
   if(environment === "development") {
-    res.send({ error: true, message, errorStack: err.stack });
+    response = apiErrorResponse({ message, errorStack: err.stack });
   } else {
-    res.send({ error: true, message });
+    response = apiErrorResponse({ message });
   }
+
+  return res.json(response);
 });
 
 
