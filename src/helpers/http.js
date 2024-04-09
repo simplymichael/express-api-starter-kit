@@ -10,6 +10,7 @@ const statusCodes = {
   notFound: 404,
   conflict: 409,
   serverError: 500,
+  gatewayTimeout: 504,
 };
 
 module.exports = {

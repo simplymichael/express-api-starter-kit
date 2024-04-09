@@ -7,6 +7,7 @@ const port = normalizePort(config.app.port);
 
 
 function startServer({ port, onError, onListening }) {
+  const logger = app.resolve("logger");
   const server = http.createServer(app);
 
   // Listen on provided port, on all network interfaces.
@@ -19,6 +20,25 @@ function startServer({ port, onError, onListening }) {
   if(typeof onListening === "function") {
     server.on("listening", () => onListening(server));
   }
+
+  // Get the unhandled rejection  
+  // and throw it to the uncaughtException handler.
+  process.on("unhandledRejection", function handledPromiseRejection(reason) {
+    throw reason;
+  });
+
+  process.on("uncaughtException", function handleUncaughtException(err) {
+    logger.error(err); // log the error in a permanent storage
+    
+    // Attempt a gracefully shutdown.
+    // Then exit
+    server.close(() => process.exit(1));
+  
+    // If a graceful shutdown is not achieved after 1 second,
+    // shut down the process completely 
+    // exit immediately and generate a core dump file
+    setTimeout(() => process.abort(), 1000).unref();
+  });
 }
 
 /**
@@ -84,6 +104,7 @@ function normalizePort(val) {
 if(require.main === module) {
   startServer({ port, onError, onListening });
 }
+
 
 module.exports = { 
   start: startServer, 
