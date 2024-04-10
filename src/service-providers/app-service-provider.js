@@ -7,7 +7,7 @@ const NonceService = require("../services/nonce-service");
 const ServiceProvider = require("./service-provider");
 
 
-const connectToRedis = ["production", "staging"].includes(config.environment);
+const connectToRedis = ["production", "staging"].includes(config.app.environment);
 const cache = connectToRedis ? redisCache : memoryCache;
 
 
