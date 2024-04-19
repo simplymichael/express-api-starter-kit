@@ -36,7 +36,9 @@ class MongooseStore {
     } = options;
 
     this.#options = { dsn, host, port, username, password, dbName, debug, exitOnConnectFail };
-    this.#logger = options.logger;    
+    this.#logger = options.logger; 
+
+    this.connect();
   }
 
   /**

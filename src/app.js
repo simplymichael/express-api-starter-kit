@@ -9,6 +9,7 @@ const httpRequestsLogger         = require("./middlewares/http-requests-logger")
 //const session                  = require("./middlewares/session");
 const createRouters              = require("./router");
 const setupServices              = require("./setup-services");
+const startServices              = require("./start-services");
 
 // Our first action is to bootstrap (aka, register) the services.
 // This way, any required services are available to route handlers 
@@ -26,6 +27,7 @@ const apiRoutes  = routers[`api-v${apiVersion}`];
 // We can the resolve service in middleware and route handlers using: 
 // req.app.resolve(serviceName);
 makeObjectADIContainer(app);
+startServices(app);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

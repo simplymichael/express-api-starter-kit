@@ -17,6 +17,10 @@ class AppServiceProvider extends ServiceProvider {
   }
 
   register() {
+    this.container.bindWithFunction("appConfig", function configGetter() {
+      return deepFreezeObject({ ...config, initRedis: connectToRedis });
+    });
+
     this.container.bindWithFunction("logger", winstonLogger);
 
     if(connectToRedis) {
@@ -34,3 +38,26 @@ class AppServiceProvider extends ServiceProvider {
 }
 
 module.exports = AppServiceProvider;
+
+
+// Helper functions
+
+// Credits.
+// - https://stackoverflow.com/a/34776962/1743192
+// - https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Object/freeze#freezing_arrays
+function deepFreezeObject(o) {
+  Object.freeze(o);
+
+  if(o === null) {
+    return o;
+  }
+
+  Object.getOwnPropertyNames(o).forEach(function (prop) {
+    if(o[prop] && (typeof o[prop] === "object" || typeof o[prop] === "function")
+      && !Object.isFrozen(o[prop])) {
+      deepFreezeObject(o[prop]);
+    }
+  });
+
+  return o;
+}
