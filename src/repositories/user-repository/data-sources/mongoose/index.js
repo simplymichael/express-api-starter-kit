@@ -6,17 +6,7 @@ const User = mongoose.model("User", UserSchema);
 
 // implements (not-yet-defined) interface UserRepository
 class MongooseStore {
-  #dbConn = null;
-
-  /**
-   *
-   * @param {Object}
-   * @param {Object} [options.mongooseConnection]: a mongoose connection object
-   *   with methods: connect() and disconnect()
-   */
-  constructor({ mongooseConnection }) {
-    this.#dbConn = mongooseConnection;
-  }
+  constructor() {}
 
   /**
    * @param object with members:
@@ -33,11 +23,9 @@ class MongooseStore {
    *   - users {array} the actual list of returned users that match the search term
    */
   async createUser(userData) {
-    const dataSource = this.#dbConn;
     const { firstname, lastname, email, role, status, password } = userData;
 
     try {
-      await dataSource.connect();
       const user = await User.create({
         email,
         role,
@@ -50,10 +38,6 @@ class MongooseStore {
       });
 
       user.password = "*".repeat(10);
-
-      // No need to await it. Just fire and forget
-      // and let it disconnect asynchronously.
-      dataSource.disconnect();
 
       return user;
     } catch(err) {
@@ -97,17 +81,13 @@ class MongooseStore {
       updateData.name = name;
     }
 
-    await this.#dbConn.connect();
     const user = await User.updateUser(userId, updateData);
-    this.#dbConn.disconnect();
 
     return user;
   }
 
   async deleteUser(userId) {
-    await this.#dbConn.connect();
     await User.deleteUser(userId);
-    this.#dbConn.disconnect();
   }
 
   /**
@@ -124,9 +104,8 @@ class MongooseStore {
    *   - users {array} the actual list of returned users that match the search term
    */
   async findMany(options) {
-    const dataSource = this.#dbConn;
-
     options = options || {};
+
     let {
       firstname = "",
       lastname = "",
@@ -157,16 +136,13 @@ class MongooseStore {
       where = searchBy.length === 1 ? searchBy[0] : { "$or": searchBy };
     }
 
-    await dataSource.connect();
     const orderBy = MongooseStore.generateOrderBy(sort);
     const queryParams = { where, page, limit, orderBy };
-    const allUsersCount = await User.countUsers(where);
+    const count = await User.countUsers(where);
     const results = await User.generateQuery(queryParams).exec();
 
-    dataSource.disconnect();
-
     return {
-      total: allUsersCount,
+      total: count,
       length: results.length,
       users: results,
     };
@@ -187,8 +163,9 @@ class MongooseStore {
    */
   async search(options) {
     options = options || {};
-    const dataSource = this.#dbConn();
+
     let { query, by = "", page = 1, limit = 20, sort = ""} = options;
+
     by = (typeof by === "string" ? by : "").trim();
     sort = (typeof sort === "string" ? sort : "").trim();
     query = (typeof query === "string" ? query : "").trim();
@@ -229,15 +206,11 @@ class MongooseStore {
 
 
     const where = searchBy.length === 1 ? searchBy[0] : { "$or": searchBy };
-
-    await dataSource.connect();
-    const allUsersCount = await User.countUsers(where);
+    const count = await User.countUsers(where);
     const results = await User.generateSearchQuery(query, queryParams).exec();
 
-    dataSource.disconnect();
-
     return{
-      total: allUsersCount,
+      total: count,
       length: results.length,
       users: results,
     };
@@ -247,17 +220,13 @@ class MongooseStore {
    * @return user object
    */
   async findOneByEmail(email) {
-    await this.#dbConn.connect();
     const user = (await User.generateQuery({ where: {email} }).exec())[0];
-    this.#dbConn.disconnect();
 
     return user;
   }
 
   async findOneById(userId) {
-    await this.#dbConn.connect();
     const user = await User.getById(userId);
-    this.#dbConn.disconnect();
 
     return user;
   }
