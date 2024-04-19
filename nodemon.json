@@ -3,5 +3,9 @@
   "ignore": [
     "*.spec.js",
     "**/__tests__/**"
+  ],
+  "watch": [
+    "src",
+    ".env"
   ]
 }
